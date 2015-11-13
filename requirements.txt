@@ -1,0 +1,17 @@
+appnope==0.1.0
+decorator==4.0.4
+Flask==0.10.1
+Flask-SQLAlchemy==2.1
+ipython==4.0.0
+ipython-genutils==0.1.0
+itsdangerous==0.24
+Jinja2==2.8
+MarkupSafe==0.23
+path.py==0.0.0
+pexpect==3.3
+pickleshare==0.5
+simplegeneric==0.8.1
+SQLAlchemy==1.0.9
+traitlets==4.0.0
+Werkzeug==0.10.4
+wheel==0.26.0
