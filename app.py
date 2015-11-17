@@ -55,10 +55,10 @@ def workingfrom():
 			    format(user.name, location)
 	
 	elif action == 'get':
-		user = User.query.filter_by(name=data['user_name']).first()
+		user = User.query.filter_by(name=data['name']).first()
 		if user is None:
 			return "Sorry, we don't have a record for {}".\
-					format(data['user_name'])
+					format(data['name'])
 
 		if user.date == dt.datetime.now().date:
 			format_date = "today"
@@ -77,9 +77,15 @@ def check_json(request):
 		return request.json
 
 def parse_text(text):
-	pass
+	data = {}
+	if text[0] == '@':
+		action = 'get'
+		data['name'] = text[1:]
+	else:
+		action = 'set'
+		data['location'] = text
 		
-
+	return data, action
 
 
 
