@@ -1,3 +1,5 @@
+import datetime as dt
+
 from flask import Flask, request, abort
 from flask.ext.sqlalchemy import SQLAlchemy
 
@@ -7,17 +9,16 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
 db = SQLAlchemy(app)
 
 class User(db.Model):
-	id = db.Column(db.String, unique=True)
-	user = db.Column(db.String(50), unique=True)
-	where = db.Column(db.String(100))
+	name = db.Column(db.String(50), primary_key=True)
+	where = db.Column(db.String(140))
+	default = db.Column(db.String(140))
+	date = db.Column(db.Date)
 
-	def __init__(self, id, user, where):
-		self.id = id
-		self.user = user
-		self.where = where
+	def __init__(self, name):
+		self.name = name
 
 	def __repr__(self):
-		return '<User {} is working from {}>'.format(self.user, self.where)
+		return "<User {} is working from {}>".format(self.name, self.where)
 
 """
 token=Mxv5RXsVVXGlTGWNkuXhQJrX
@@ -31,18 +32,43 @@ command=/weather
 text=94070
 """
 
-@app.route("/workingfrom", methods=['POST'])
+@app.route("/wf", methods=['POST'])
 def workingfrom():
 	
-	blob = check_json(request)
-	user_id, user, text = blob['user_id'], blob['user_name'], blob['text']
+	data = check_json(request)
+	user_name, text = data['user_name'], data['text']
 
-	location = process_text(text)
-	return "{} is working from {}".format(user), 200
+	data, action = parse_text(text)
+	
+	if action == 'set':
+		user = User.query.filter_by(name=user_name).first()
+		if user is None:
+			user = User(user_name)
+		
+		location = data['location']
+		user.where = location
+		user.date = dt.datetime.now()
+		
+		db.session.add(user)
+		db.commit()
+		return "We'll let them know {} is working from {}".\
+			    format(user.name, location)
+	
+	elif action == 'get':
+		user = User.query.filter_by(name=data['user_name']).first()
+		if user is None:
+			return "Sorry, we don't have a record for {}".\
+					format(data['user_name'])
 
-@app.route("/whereis", methods=['POST'])
-def whereis():
-	blob = check_json(request)
+		if user.date == dt.datetime.now().date:
+			format_date = "today"
+		else:
+			format_date = user.date
+		
+		reply = "{} is working from {}, as of {}.".\
+				format(user.name, user.where, format_date)
+		return 
+		
 
 def check_json(request):
 	if not request.json or request.json['token'] != app.config['TOKEN']:
@@ -50,6 +76,11 @@ def check_json(request):
 	else:
 		return request.json
 
-def process_text(text):
+def parse_text(text):
+	pass
+		
 
-	text.split()
+
+
+
+	
