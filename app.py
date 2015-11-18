@@ -5,7 +5,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config.from_pyfile('settings.py')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
 
 class User(db.Model):
@@ -32,11 +32,11 @@ command=/weather
 text=94070
 """
 
-@app.route("/wf", methods=['POST'])
+@app.route("/", methods=['POST'])
 def workingfrom():
 	
-	data = check_json(request)
-	user_name, text = data['user_name'], data['text']
+	slack_data = check_json(request)
+	user_name, text = slack_data['user_name'], slack_data['text']
 
 	data, action = parse_text(text)
 	
@@ -50,25 +50,24 @@ def workingfrom():
 		user.date = dt.datetime.now()
 		
 		db.session.add(user)
-		db.commit()
-		return "We'll let them know {} is working from {}".\
+		db.session.commit()
+		return "We'll let them know {} is working from {}.\n".\
 			    format(user.name, location)
 	
 	elif action == 'get':
 		user = User.query.filter_by(name=data['name']).first()
 		if user is None:
-			return "Sorry, we don't have a record for {}".\
+			return "Sorry, we don't have a record for {}.\n".\
 					format(data['name'])
 
 		if user.date == dt.datetime.now().date:
 			format_date = "today"
 		else:
-			format_date = user.date
+			format_date = user.date.strftime("%D")
 		
-		reply = "{} is working from {}, as of {}.".\
+		reply = "@{} is working from {}, as of {}.\n".\
 				format(user.name, user.where, format_date)
-		return 
-		
+		return reply
 
 def check_json(request):
 	if not request.json or request.json['token'] != app.config['TOKEN']:
@@ -87,6 +86,5 @@ def parse_text(text):
 		
 	return data, action
 
-
-
-	
+if __name__ == '__main__':
+    app.run()
