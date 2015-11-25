@@ -49,6 +49,9 @@ def workingfrom():
 		user.where = location
 		user.date = dt.datetime.now()
 		
+		if '--default' in data:
+			user.default = location
+			
 		db.session.add(user)
 		db.session.commit()
 		return "We'll let them know {} is working from {}.\n".\
@@ -82,9 +85,31 @@ def parse_text(text):
 		data['name'] = text[1:]
 	else:
 		action = 'set'
-		data['location'] = text
+		# Find options
+		words = text.split()
+		# Option indices
+		opt_indices = [i for i, word in enumerate(words) if '--' in word]
+		if opt_indices:
+			# Rebuild location string from words before the first option
+			data['location'] = ' '.join(words[:opt_indices[0]])
+			
+			# Grab the options and send text data to appropriate functions
+			options = [words[each] for each in opt_indices]
+			for opt_ind in in opt_indices:
+				option = words[opt_ind]
+				data[option] = option_funcs[option](words, opt_ind)
+
+		else:
+			data['location'] = text
 		
 	return data, action
+
+def default_location(words, index):
+	return True
+
+option_funcs = {'--default': default_location}
+
+
 
 if __name__ == '__main__':
     app.run()
