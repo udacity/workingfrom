@@ -20,17 +20,6 @@ class User(db.Model):
 	def __repr__(self):
 		return "<User {} is working from {}>".format(self.name, self.where)
 
-"""
-token=Mxv5RXsVVXGlTGWNkuXhQJrX
-team_id=T0001
-team_domain=example
-channel_id=C2147483705
-channel_name=test
-user_id=U2147483697
-user_name=Steve
-command=/weather
-text=94070
-"""
 
 @app.route("/", methods=['POST'])
 def workingfrom():
@@ -46,14 +35,19 @@ def workingfrom():
 			user = User(user_name)
 		
 		location = data['location']
+		
+		if '--default' in data and data['--default']:
+			user.default = location
+			db.session.add(user)
+			db.session.commit()
+			return "Setting your default location to {}.\n".\
+			    	format(location)
+
 		user.where = location
 		user.date = dt.datetime.now()
-		
-		if '--default' in data:
-			user.default = location
-			
 		db.session.add(user)
 		db.session.commit()
+		
 		return "We'll let them know {} is working from {}.\n".\
 			    format(user.name, location)
 	
@@ -63,14 +57,16 @@ def workingfrom():
 			return "Sorry, we don't have a record for {}.\n".\
 					format(data['name'])
 
-		if user.date == dt.datetime.now().date:
+		if user.date == dt.datetime.now().date():
 			format_date = "today"
 		else:
 			format_date = user.date.strftime("%D")
 		
-		reply = "@{} is working from {}, as of {}.\n".\
+		reply = "@{} is working from {}, as of {}.".\
 				format(user.name, user.where, format_date)
-		return reply
+		if user.default is not None and format_date != "today":
+			reply = reply + " Typically working from {}.".format(user.default)
+		return reply + "\n"
 
 def check_json(request):
 	if not request.json or request.json['token'] != app.config['TOKEN']:
@@ -95,7 +91,7 @@ def parse_text(text):
 			
 			# Grab the options and send text data to appropriate functions
 			options = [words[each] for each in opt_indices]
-			for opt_ind in in opt_indices:
+			for opt_ind in opt_indices:
 				option = words[opt_ind]
 				data[option] = option_funcs[option](words, opt_ind)
 
@@ -108,7 +104,6 @@ def default_location(words, index):
 	return True
 
 option_funcs = {'--default': default_location}
-
 
 
 if __name__ == '__main__':
