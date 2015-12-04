@@ -35,6 +35,8 @@ This way, people can tell where you're likely to be, even if you haven't used /w
 ###Using with Slack
 The easiest way to deploy this code is to run it as a [Heroku app](https://devcenter.heroku.com/articles/getting-started-with-python-o). Then, create a Slack command for your team and hook it up.
 
+Make sure you update the settings file appropriately. You'll need your own token which you get from Slack. Also, be sure to set DEBUG to False when you're ready to use it for realz.
+
 ###License
 The MIT License (MIT)
 
