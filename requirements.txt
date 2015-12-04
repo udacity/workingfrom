@@ -7,7 +7,6 @@ ipython-genutils==0.1.0
 itsdangerous==0.24
 Jinja2==2.8
 MarkupSafe==0.23
-path.py==0.0.0
 pexpect==3.3
 pickleshare==0.5
 simplegeneric==0.8.1
