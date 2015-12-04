@@ -1,5 +1,5 @@
-DEBUG = False
+DEBUG = True
 
-TOKEN = your_token_here
+TOKEN = "your_token_here"
 
-DEFAULT_LOC = "MTV"
+SQLALCHEMY_DATABASE_URI = "sqlite:///test.db"
