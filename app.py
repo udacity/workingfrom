@@ -4,7 +4,7 @@ from flask import Flask, request, abort
 from flask.ext.sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config.from_pyfile('settings_example.py')
+app.config.from_pyfile('settings.py')
 db = SQLAlchemy(app)
 
 class User(db.Model):
