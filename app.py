@@ -35,6 +35,9 @@ def workingfrom():
 		
 		location = data['location']
 		
+		if '--help' in data:
+			return data['--help']
+
 		if '--default' in data and data['--default']:
 			user.default = location
 			db.session.add(user)
@@ -92,6 +95,8 @@ def parse_text(text):
 			options = [words[each] for each in opt_indices]
 			for opt_ind in opt_indices:
 				option = words[opt_ind]
+				# Calling the functions with words and opt_ind because some
+				# options might need to use these in the future.
 				data[option] = option_funcs[option](words, opt_ind)
 
 		else:
@@ -99,10 +104,26 @@ def parse_text(text):
 		
 	return data, action
 
-def default_location(words, index):
+def default_location(a, b):
 	return True
 
-option_funcs = {'--default': default_location}
+def call_help(a, b):
+	help_text = """ Help for /workingfrom command.
+
+		Use /workingfrom to let your coworkers know where you are. 
+
+		It's pretty simple! Enter /workingfrom [location] to set where you're working from, where [location] can be any text, up to 500 characters. For instance, you can just say /workingfrom SF, or /workingfrom MTV. You can also write something longer: /workingfrom Out of office until January 14th.
+
+		You can check someone's location with /workingfrom @[user].
+
+		To set your default location, use the '--default' option: /workingfrom SF --default. This will let people know where you are if you haven't used /workingfrom recently.
+
+		"""
+
+	return help_text
+
+option_funcs = {'--default': default_location,
+				'--help': call_help}
 
 
 if __name__ == '__main__':
