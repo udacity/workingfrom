@@ -4,21 +4,20 @@ from flask import Flask, request, abort
 from flask.ext.sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config.from_pyfile('settings.py')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+app.config.from_pyfile('settings_example.py')
 db = SQLAlchemy(app)
 
 class User(db.Model):
 	name = db.Column(db.String(50), primary_key=True)
-	where = db.Column(db.String(140))
-	default = db.Column(db.String(140))
+	location = db.Column(db.String(500))
+	default = db.Column(db.String(500))
 	date = db.Column(db.Date)
 
 	def __init__(self, name):
 		self.name = name
 
 	def __repr__(self):
-		return "<User {} is working from {}>".format(self.name, self.where)
+		return "<User {} is working from {}>".format(self.name, self.location)
 
 
 @app.route("/", methods=['POST'])
@@ -43,12 +42,12 @@ def workingfrom():
 			return "Setting your default location to {}.\n".\
 			    	format(location)
 
-		user.where = location
+		user.location = location
 		user.date = dt.datetime.now()
 		db.session.add(user)
 		db.session.commit()
 		
-		return "We'll let them know {} is working from {}.\n".\
+		return "We'll let them know @{} is working from {}.\n".\
 			    format(user.name, location)
 	
 	elif action == 'get':
@@ -63,7 +62,7 @@ def workingfrom():
 			format_date = user.date.strftime("%D")
 		
 		reply = "@{} is working from {}, as of {}.".\
-				format(user.name, user.where, format_date)
+				format(user.name, user.location, format_date)
 		if user.default is not None and format_date != "today":
 			reply = reply + " Typically working from {}.".format(user.default)
 		return reply + "\n"
