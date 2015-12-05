@@ -1,10 +1,11 @@
 import datetime as dt
+import os
 
 from flask import Flask, request, abort
 from flask.ext.sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config.from_pyfile('settings_example.py')
+app.config.from_pyfile('settings.py')
 db = SQLAlchemy(app)
 
 class User(db.Model):
@@ -23,22 +24,22 @@ class User(db.Model):
 @app.route("/", methods=['POST'])
 def workingfrom():
 	
-	slack_data = check_json(request)
-	user_name, text = slack_data['user_name'], slack_data['text']
+	data = check_request(request)
+	user_name, text = data.get('user_name'), data.get('text')
 
-	data, action = parse_text(text)
+	text_data, action = parse_text(text)
 	
 	if action == 'set':
 		user = User.query.filter_by(name=user_name).first()
 		if user is None:
 			user = User(user_name)
 		
-		location = data['location']
+		location = text_data['location']
 		
-		if '--help' in data:
-			return data['--help']
+		if '-help' in text_data:
+			return text_data['-help']
 
-		if '--default' in data and data['--default']:
+		if '-default' in text_data and text_data['-default']:
 			user.default = location
 			db.session.add(user)
 			db.session.commit()
@@ -54,10 +55,10 @@ def workingfrom():
 			    format(user.name, location)
 	
 	elif action == 'get':
-		user = User.query.filter_by(name=data['name']).first()
+		user = User.query.filter_by(name=text_data['name']).first()
 		if user is None:
 			return "Sorry, we don't have a record for {}.\n".\
-					format(data['name'])
+					format(text_data['name'])
 
 		if user.date == dt.datetime.now().date():
 			format_date = "today"
@@ -70,11 +71,12 @@ def workingfrom():
 			reply = reply + " Typically working from {}.".format(user.default)
 		return reply + "\n"
 
-def check_json(request):
-	if not request.json or request.json['token'] != app.config['TOKEN']:
-		abort(400)
+def check_request(request):
+	data = request.form
+	if data.get('token') != app.config['TOKEN']:
+		return abort(403)
 	else:
-		return request.json
+		return data
 
 def parse_text(text):
 	data = {}
@@ -86,7 +88,7 @@ def parse_text(text):
 		# Find options
 		words = text.split()
 		# Option indices
-		opt_indices = [i for i, word in enumerate(words) if '--' in word]
+		opt_indices = [i for i, word in enumerate(words) if '-' in word]
 		if opt_indices:
 			# Rebuild location string from words before the first option
 			data['location'] = ' '.join(words[:opt_indices[0]])
@@ -116,15 +118,17 @@ def call_help(a, b):
 
 		You can check someone's location with /workingfrom @[user].
 
-		To set your default location, use the '--default' option: /workingfrom SF --default. This will let people know where you are if you haven't used /workingfrom recently.
+		To set your default location, use the '-default' option: /workingfrom SF -default. This will let people know where you are if you haven't used /workingfrom recently.
 
 		"""
 
 	return help_text
 
-option_funcs = {'--default': default_location,
-				'--help': call_help}
+option_funcs = {'-default': default_location,
+				'-help': call_help}
 
 
 if __name__ == '__main__':
-    app.run()
+	# Bind to PORT if defined, otherwise default to 5000.
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
