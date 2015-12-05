@@ -118,7 +118,7 @@ def call_help(a, b):
 
 		You can check someone's location with /workingfrom @[user].
 
-		To set your default location, use the '--default' option: /workingfrom SF --default. This will let people know where you are if you haven't used /workingfrom recently.
+		To set your default location, use the '-default' option: /workingfrom SF -default. This will let people know where you are if you haven't used /workingfrom recently.
 
 		"""
 
