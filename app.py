@@ -124,8 +124,8 @@ def call_help(a, b):
 
 	return help_text
 
-option_funcs = {'--default': default_location,
-				'--help': call_help}
+option_funcs = {'-default': default_location,
+				'-help': call_help}
 
 
 if __name__ == '__main__':
