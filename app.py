@@ -36,10 +36,10 @@ def workingfrom():
 		
 		location = text_data['location']
 		
-		if '--help' in text_data:
-			return text_data['--help']
+		if '-help' in text_data:
+			return text_data['-help']
 
-		if '--default' in text_data and text_data['--default']:
+		if '-default' in text_data and text_data['-default']:
 			user.default = location
 			db.session.add(user)
 			db.session.commit()
@@ -88,7 +88,7 @@ def parse_text(text):
 		# Find options
 		words = text.split()
 		# Option indices
-		opt_indices = [i for i, word in enumerate(words) if '--' in word]
+		opt_indices = [i for i, word in enumerate(words) if '-' in word]
 		if opt_indices:
 			# Rebuild location string from words before the first option
 			data['location'] = ' '.join(words[:opt_indices[0]])
