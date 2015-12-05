@@ -24,23 +24,22 @@ class User(db.Model):
 @app.route("/", methods=['POST'])
 def workingfrom():
 	
-	request = check_json(request)
-	user_name = request.values.get('user_name')
-	text = request.values.get('text')
+	data = check_request(request)
+	user_name, text = data.get('user_name'), data.get('text')
 
-	data, action = parse_text(text)
+	text_data, action = parse_text(text)
 	
 	if action == 'set':
 		user = User.query.filter_by(name=user_name).first()
 		if user is None:
 			user = User(user_name)
 		
-		location = data['location']
+		location = text_data['location']
 		
-		if '--help' in data:
-			return data['--help']
+		if '--help' in text_data:
+			return text_data['--help']
 
-		if '--default' in data and data['--default']:
+		if '--default' in text_data and text_data['--default']:
 			user.default = location
 			db.session.add(user)
 			db.session.commit()
@@ -56,10 +55,10 @@ def workingfrom():
 			    format(user.name, location)
 	
 	elif action == 'get':
-		user = User.query.filter_by(name=data['name']).first()
+		user = User.query.filter_by(name=text_data['name']).first()
 		if user is None:
 			return "Sorry, we don't have a record for {}.\n".\
-					format(data['name'])
+					format(text_data['name'])
 
 		if user.date == dt.datetime.now().date():
 			format_date = "today"
@@ -72,11 +71,12 @@ def workingfrom():
 			reply = reply + " Typically working from {}.".format(user.default)
 		return reply + "\n"
 
-def check_json(request):
-	if not request.json or request.values.get('token') != app.config['TOKEN']:
+def check_request(request):
+	data = request.form
+	if data.get('token') != app.config['TOKEN']:
 		return abort(403)
 	else:
-		return request
+		return data
 
 def parse_text(text):
 	data = {}
