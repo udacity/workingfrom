@@ -1,5 +1,5 @@
-DEBUG = True
+DEBUG = False
 
-TOKEN = "nY0wsXlRUdT2FmvlMpWBMJLN"
+TOKEN = "Mxv5RXsVVXGlTGWNkuXhQJrX"
 
 SQLALCHEMY_DATABASE_URI = "sqlite:///udacians.db"
