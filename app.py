@@ -24,8 +24,9 @@ class User(db.Model):
 @app.route("/", methods=['POST'])
 def workingfrom():
 	
-	slack_data = check_json(request)
-	user_name, text = slack_data['user_name'], slack_data['text']
+	request = check_json(request)
+	user_name = request.values.get('user_name')
+	text = request.values.get('text')
 
 	data, action = parse_text(text)
 	
@@ -72,10 +73,10 @@ def workingfrom():
 		return reply + "\n"
 
 def check_json(request):
-	if not request.json or request.json['token'] != app.config['TOKEN']:
-		abort(400)
+	if not request.json or request.values.get('token') != app.config['TOKEN']:
+		return abort(403)
 	else:
-		return request.json
+		return request
 
 def parse_text(text):
 	data = {}
