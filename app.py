@@ -68,7 +68,7 @@ def workingfrom():
 		json_data = json.dumps(payload)
 		requests.post(app.config["WEBHOOK_URL"], data=json_data)
 
-		return
+		return "Got it, you're working from {}".format(location)
 	
 	elif action == 'get':
 		user = User.query.filter_by(name=text_data['name']).first()
