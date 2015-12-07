@@ -1,4 +1,4 @@
-DEBUG = False
+DEBUG = True
 
 TOKEN = "nY0wsXlRUdT2FmvlMpWBMJLN"
 
