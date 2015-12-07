@@ -56,7 +56,6 @@ def workingfrom():
 		announcement = "@{} is working from {}.\n".format(user.name, location)
 		if data.get('channel_name') != "working-from":
 			# workingfrom bot announces location to original channel
-			
 			payload = {"text": announcement,
 				       "channel": "#" + data.get('channel_name'),
 				       "username": "workingfrom"}
