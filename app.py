@@ -1,7 +1,7 @@
 import datetime as dt
 import os
 
-from flask import Flask, request, abort
+from flask import Flask, request, abort, json
 from flask.ext.sqlalchemy import SQLAlchemy
 
 import requests
@@ -57,7 +57,7 @@ def workingfrom():
 		announcement = "@{} is working from {}.\n".format(user.name, location)
 		payload = {"text": announcement,
 			       "channel": "#" + data.get("channel_name")}
-		json_data = Flask.json.dumps(payload)
+		json_data = json.dumps(payload)
 		requests.post(app.config["WEBHOOK_URL"], data=json_data)
 
 		# workingfrom bot announces location to working-from channel
