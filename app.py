@@ -56,17 +56,19 @@ def workingfrom():
 		# workingfrom bot announces location to original channel
 		announcement = "@{} is working from {}.\n".format(user.name, location)
 		payload = {"text": announcement,
-			       "channel": "#" + data.get('channel_name')}
+			       "channel": "#" + data.get('channel_name')
+			       "username": "workingfrom"}
 		json_data = json.dumps(payload)
 		requests.post(app.config["WEBHOOK_URL"], data=json_data)
 
 		# workingfrom bot announces location to working-from channel
 		payload = {"text": announcement,
-			       "channel": "#working-from"}
+			       "channel": "#working-from"
+			       "username": "workingfrom"}
 		json_data = json.dumps(payload)
 		requests.post(app.config["WEBHOOK_URL"], data=json_data)
 
-		return 200
+		return
 	
 	elif action == 'get':
 		user = User.query.filter_by(name=text_data['name']).first()
