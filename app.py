@@ -53,9 +53,10 @@ def workingfrom():
 		db.session.add(user)
 		db.session.commit()
 
+		announcement = "@{} is working from {}.\n".format(user.name, location)
 		if data.get('channel_name') != "working-from":
 			# workingfrom bot announces location to original channel
-			announcement = "@{} is working from {}.\n".format(user.name, location)
+			
 			payload = {"text": announcement,
 				       "channel": "#" + data.get('channel_name'),
 				       "username": "workingfrom"}
