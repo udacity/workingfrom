@@ -4,6 +4,8 @@ import os
 from flask import Flask, request, abort
 from flask.ext.sqlalchemy import SQLAlchemy
 
+import requests
+
 app = Flask(__name__)
 app.config.from_pyfile('settings.py')
 db = SQLAlchemy(app)
@@ -50,9 +52,20 @@ def workingfrom():
 		user.date = dt.datetime.now()
 		db.session.add(user)
 		db.session.commit()
-		
-		return "We'll let them know @{} is working from {}.\n".\
-			    format(user.name, location)
+
+		# workingfrom bot announces location to original channel
+		announcement = "@{} is working from {}.\n".format(user.name, location)
+		payload = {"text": announcement,
+			       "channel": "#" + data.get("channel_name")}
+		json_data = Flask.json.dumps(payload)
+		requests.post(app.config["WEBHOOK_URL"], data=json_data)
+
+		# workingfrom bot announces location to working-from channel
+		payload = {"text": announcement,
+			       "channel": "#working-from"}
+		requests.post(app.config["WEBHOOK_URL"], data=json_data)
+
+		return 200
 	
 	elif action == 'get':
 		user = User.query.filter_by(name=text_data['name']).first()
