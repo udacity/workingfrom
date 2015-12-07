@@ -53,13 +53,14 @@ def workingfrom():
 		db.session.add(user)
 		db.session.commit()
 
-		# workingfrom bot announces location to original channel
-		announcement = "@{} is working from {}.\n".format(user.name, location)
-		payload = {"text": announcement,
-			       "channel": "#" + data.get('channel_name'),
-			       "username": "workingfrom"}
-		json_data = json.dumps(payload)
-		requests.post(app.config["WEBHOOK_URL"], data=json_data)
+		if data.get('channel_name') != "working-from":
+			# workingfrom bot announces location to original channel
+			announcement = "@{} is working from {}.\n".format(user.name, location)
+			payload = {"text": announcement,
+				       "channel": "#" + data.get('channel_name'),
+				       "username": "workingfrom"}
+			json_data = json.dumps(payload)
+			requests.post(app.config["WEBHOOK_URL"], data=json_data)
 
 		# workingfrom bot announces location to working-from channel
 		payload = {"text": announcement,
