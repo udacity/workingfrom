@@ -106,7 +106,8 @@ def parse_text(text):
 		# Find options
 		words = text.split()
 		# Option indices
-		opt_indices = [i for i, word in enumerate(words) if '-' in word]
+		opt_indices = [i for i, word in enumerate(words) 
+		               if '-' in word and word in option_funcs]
 		if opt_indices:
 			# Rebuild location string from words before the first option
 			data['location'] = ' '.join(words[:opt_indices[0]])
