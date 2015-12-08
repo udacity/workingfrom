@@ -45,8 +45,7 @@ def workingfrom():
 			user.default = location
 			db.session.add(user)
 			db.session.commit()
-			return "Setting your default location to {}.\n".\
-			    	format(location)
+			return "Setting your default location to {}.\n".format(location)
 
 		user.location = location
 		user.date = dt.datetime.now()
