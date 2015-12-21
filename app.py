@@ -8,6 +8,7 @@ import requests
 
 app = Flask(__name__)
 app.config.from_pyfile('settings.py')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
 
 class User(db.Model):
