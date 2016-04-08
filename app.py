@@ -1,4 +1,3 @@
-
 import argparse
 from collections import namedtuple
 import datetime as dt
@@ -117,7 +116,7 @@ def parse_text(text):
 		data = Data(text[1:])
 	else:
 		action = 'set'
-		data = parser.parse_args(text)
+		data = parser.parse_args(text.split())
 		
 	return data, action
 
