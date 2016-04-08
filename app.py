@@ -1,3 +1,6 @@
+
+import argparse
+from collections import namedtuple
 import datetime as dt
 import os
 
@@ -10,6 +13,16 @@ app = Flask(__name__)
 app.config.from_pyfile('settings.py')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
+
+# This is for parsing the command
+parser = argparse.ArgumentParser()
+parser.add_argument('location', type=str)
+parser.add_argument('-default', action='store_true')
+parser.add_argument('-channels', type=str)
+parser.add_argument('-help', action='store_true')
+
+# This for making a fake parser object, duck typing thing
+Data = namedtuple('Data', ['name'])
 
 class User(db.Model):
 	name = db.Column(db.String(50), primary_key=True)
@@ -30,52 +43,54 @@ def workingfrom():
 	data = check_request(request)
 	user_name, text = data.get('user_name'), data.get('text')
 
-	text_data, action = parse_text(text)
+	parsed_text, action = parse_text(text)
 	
 	if action == 'set':
+		
+		if parsed_text.help:
+			return app.config["HELP_TEXT"]
+
 		user = User.query.filter_by(name=user_name).first()
 		if user is None:
 			user = User(user_name)
 		
-		location = text_data['location']
-		
-		if '-help' in text_data:
-			return text_data['-help']
-
-		if '-default' in text_data and text_data['-default']:
-			user.default = location
-			db.session.add(user)
-			db.session.commit()
-			return "Setting your default location to {}.\n".format(location)
-
+		location = parsed_text.location
 		user.location = location
 		user.date = dt.datetime.now()
 		db.session.add(user)
-		db.session.commit()
+
+		if parsed_text.default:
+			user.default = location
+			db.session.commit()
+			return "Setting your default location to {}.\n".format(location)
+		else:
+			db.session.commit()
 
 		announcement = "@{} is working from {}.\n".format(user.name, location)
-		if data.get('channel_name') != "working-from":
-			# workingfrom bot announces location to original channel
+
+		channels = ['#working-from']
+		if data.get('channel_name') != 'working-from':
+			channels.append(data.get('channel_name'))
+
+		for each in parsed_text.channels.split(','):
+			channels.append(each)
+
+		for channel in channels:
+			if channel[0] != '#':
+				channel = '#' + channel
 			payload = {"text": announcement,
-				       "channel": "#" + data.get('channel_name'),
+				       "channel": channel,
 				       "username": "workingfrom"}
 			json_data = json.dumps(payload)
 			requests.post(app.config["WEBHOOK_URL"], data=json_data)
 
-		# workingfrom bot announces location to working-from channel
-		payload = {"text": announcement,
-			       "channel": "#working-from",
-			       "username": "workingfrom"}
-		json_data = json.dumps(payload)
-		requests.post(app.config["WEBHOOK_URL"], data=json_data)
-
 		return "Got it, you're working from {}".format(location)
 	
 	elif action == 'get':
-		user = User.query.filter_by(name=text_data['name']).first()
+		user = User.query.filter_by(name=parsed_text.name).first()
 		if user is None:
 			return "Sorry, we don't have a record for {}.\n".\
-					format(text_data['name'])
+					format(parsed_text['name'])
 
 		if user.date == dt.datetime.now().date():
 			format_date = "today"
@@ -96,54 +111,15 @@ def check_request(request):
 		return data
 
 def parse_text(text):
-	data = {}
+	
 	if text[0] == '@':
 		action = 'get'
-		data['name'] = text[1:]
+		data = Data(text[1:])
 	else:
 		action = 'set'
-		# Find options
-		words = text.split()
-		# Option indices
-		opt_indices = [i for i, word in enumerate(words) 
-		               if '-' in word and word in option_funcs]
-		if opt_indices:
-			# Rebuild location string from words before the first option
-			data['location'] = ' '.join(words[:opt_indices[0]])
-			
-			# Grab the options and send text data to appropriate functions
-			options = [words[each] for each in opt_indices]
-			for opt_ind in opt_indices:
-				option = words[opt_ind]
-				# Calling the functions with words and opt_ind because some
-				# options might need to use these in the future.
-				data[option] = option_funcs[option](words, opt_ind)
-
-		else:
-			data['location'] = text
+		data = parser.parse_args(text)
 		
 	return data, action
-
-def default_location(a, b):
-	return True
-
-def call_help(a, b):
-	help_text = """ Help for /workingfrom command.
-
-		Use /workingfrom to let your coworkers know where you are. 
-
-		It's pretty simple! Enter /workingfrom [location] to set where you're working from, where [location] can be any text, up to 500 characters. For instance, you can just say /workingfrom SF, or /workingfrom MTV. You can also write something longer: /workingfrom Out of office until January 14th.
-
-		You can check someone's location with /workingfrom @[user].
-
-		To set your default location, use the '-default' option: /workingfrom SF -default. This will let people know where you are if you haven't used /workingfrom recently.
-
-		"""
-
-	return help_text
-
-option_funcs = {'-default': default_location,
-				'-help': call_help}
 
 
 if __name__ == '__main__':
