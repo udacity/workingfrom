@@ -71,8 +71,9 @@ def workingfrom():
 		if data.get('channel_name') != 'working-from':
 			channels.append(data.get('channel_name'))
 
-		for each in parsed_text.channels.split(','):
-			channels.append(each)
+		if parsed_text.channels:
+			for each in parsed_text.channels.split(','):
+				channels.append(each)
 
 		for channel in channels:
 			if channel[0] != '#':
