@@ -42,13 +42,13 @@ def workingfrom():
 	data = check_request(request)
 	user_name, text = data.get('user_name'), data.get('text')
 
+	if "-help" in text:
+		return app.config["HELP_TEXT"]
+
 	parsed_text, action = parse_text(text)
 	
 	if action == 'set':
 		
-		if parsed_text.help:
-			return app.config["HELP_TEXT"]
-
 		user = User.query.filter_by(name=user_name).first()
 		if user is None:
 			user = User(user_name)

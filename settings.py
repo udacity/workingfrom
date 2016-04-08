@@ -10,10 +10,12 @@ HELP_TEXT = """ Help for /workingfrom command.
 
         Use /workingfrom to let your coworkers know where you are. 
 
-        It's pretty simple! Enter /workingfrom [location] to set where you're working from, where [location] can be any text, up to 500 characters. For instance, you can just say /workingfrom SF, or /workingfrom MTV. You can also write something longer: /workingfrom Out of office until January 14th.
+        It's pretty simple! Enter /workingfrom location to set where you're working from, where location can be any text, up to 500 characters. For instance, you can just say /workingfrom SF, or /workingfrom MTV. You can also write something longer: /workingfrom Out of office until January 14th.
 
-        You can check someone's location with /workingfrom @[user].
+        You can check someone's location with /workingfrom @username.
 
-        To set your default location, use the '-default' option: /workingfrom SF -default. This will let people know where you are if you haven't used /workingfrom recently.
+        To set your default location, use the '-default' option: /workingfrom -default SF. This will let people know where you are if you haven't used /workingfrom recently.
+
+        You can send your location to multiple channels with /workingfrom -channels #channel1,#channel2,#etc location.
 
         """
