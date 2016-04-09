@@ -48,7 +48,7 @@ def workingfrom():
 		user.date = dt.datetime.now()
 		db.session.add(user)
 
-		if text_data.get(default):
+		if text_data.get('default'):
 			user.default = location
 			db.session.commit()
 			return "Setting your default location to {}.\n".format(location)
