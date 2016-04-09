@@ -61,7 +61,7 @@ def workingfrom():
 		if data.get('channel_name') != 'working-from':
 			channels.append(data.get('channel_name'))
 
-		if text_data.get(channels):
+		if text_data.get('channels'):
 			for each in text_data['channels'].split(','):
 				channels.append(each)
 
