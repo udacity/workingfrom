@@ -77,7 +77,7 @@ def workingfrom():
 		return "Got it, you're working from {}".format(location)
 	
 	elif action == 'get':
-		user = User.query.filter_by(name=text_data.name).first()
+		user = User.query.filter_by(name=text_data['text']).first()
 		if user is None:
 			return "Sorry, we don't have a record for {}.\n".\
 					format(text_data['text'])
