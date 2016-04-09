@@ -1,5 +1,4 @@
 import argparse
-from collections import namedtuple
 import datetime as dt
 import os
 
@@ -13,15 +12,6 @@ app.config.from_pyfile('settings.py')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
 
-# This is for parsing the command
-parser = argparse.ArgumentParser()
-parser.add_argument('location', type=str)
-parser.add_argument('-default', action='store_true')
-parser.add_argument('-channels', type=str)
-parser.add_argument('-help', action='store_true')
-
-# This for making a fake parser object, duck typing thing
-Data = namedtuple('Data', ['name'])
 
 class User(db.Model):
 	name = db.Column(db.String(50), primary_key=True)
@@ -45,7 +35,7 @@ def workingfrom():
 	if "-help" in text:
 		return app.config["HELP_TEXT"]
 
-	parsed_text, action = parse_text(text)
+	text_data, action = parse_text(text)
 	
 	if action == 'set':
 		
@@ -53,12 +43,12 @@ def workingfrom():
 		if user is None:
 			user = User(user_name)
 		
-		location = parsed_text.location
+		location = text_data['location']
 		user.location = location
 		user.date = dt.datetime.now()
 		db.session.add(user)
 
-		if parsed_text.default:
+		if text_data.get(default):
 			user.default = location
 			db.session.commit()
 			return "Setting your default location to {}.\n".format(location)
@@ -71,8 +61,8 @@ def workingfrom():
 		if data.get('channel_name') != 'working-from':
 			channels.append(data.get('channel_name'))
 
-		if parsed_text.channels:
-			for each in parsed_text.channels.split(','):
+		if text_data.get(channels):
+			for each in text_data['channels'].split(','):
 				channels.append(each)
 
 		for channel in channels:
@@ -87,10 +77,10 @@ def workingfrom():
 		return "Got it, you're working from {}".format(location)
 	
 	elif action == 'get':
-		user = User.query.filter_by(name=parsed_text.name).first()
+		user = User.query.filter_by(name=text_data.name).first()
 		if user is None:
 			return "Sorry, we don't have a record for {}.\n".\
-					format(parsed_text['name'])
+					format(text_data['name'])
 
 		if user.date == dt.datetime.now().date():
 			format_date = "today"
@@ -111,14 +101,22 @@ def check_request(request):
 		return data
 
 def parse_text(text):
-	
+	data = {}
 	if text[0] == '@':
 		action = 'get'
-		data = Data(text[1:])
+		data['text'] = text[1:]
 	else:
 		action = 'set'
-		data = parser.parse_args(text.split())
-		
+		words = text.split()
+		if '-default' in words:
+			data['default'] = True
+		if '-channels' in words:
+			data['channels'] = words[words.index('-channels') + 1]
+		if ' -' in text:
+			data['location'] = text[:text.index(' -')]
+		else:
+			data['location'] = text
+
 	return data, action
 
 
