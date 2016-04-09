@@ -80,7 +80,7 @@ def workingfrom():
 		user = User.query.filter_by(name=text_data.name).first()
 		if user is None:
 			return "Sorry, we don't have a record for {}.\n".\
-					format(text_data['name'])
+					format(text_data['text'])
 
 		if user.date == dt.datetime.now().date():
 			format_date = "today"
