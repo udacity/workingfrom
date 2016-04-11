@@ -14,8 +14,8 @@ HELP_TEXT = """ Help for /workingfrom command.
 
         You can check someone's location with /workingfrom @username.
 
-        To set your default location, use the '-default' option: /workingfrom -default SF. This will let people know where you are if you haven't used /workingfrom recently.
+        To set your default location, use the '-default' option: /workingfrom SF -default. This will let people know where you are if you haven't used /workingfrom recently.
 
-        You can send your location to multiple channels with /workingfrom -channels #channel1,#channel2,#etc location.
+        You can send your location to multiple channels with /workingfrom location text here -channels #channel1 #channel2 #etc.
 
         """

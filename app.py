@@ -62,8 +62,8 @@ def workingfrom():
 			channels.append(data.get('channel_name'))
 
 		if text_data.get('channels'):
-			for each in text_data['channels'].split(','):
-				channels.append(each)
+			for each in text_data['channels']:
+				channels.append(each.strip())
 
 		for channel in channels:
 			if channel[0] != '#':
@@ -111,7 +111,8 @@ def parse_text(text):
 		if '-default' in words:
 			data['default'] = True
 		if '-channels' in words:
-			data['channels'] = words[words.index('-channels') + 1]
+			channels = ' '.join(words[words.index('-channels') + 1:])
+			data['channels'] = channels.replace(',', '').split()
 		if ' -' in text:
 			data['location'] = text[:text.index(' -')]
 		else:
