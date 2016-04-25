@@ -100,6 +100,13 @@ def check_request(request):
 	else:
 		return data
 
+def haschannels(words):
+	for word in words:
+		if word.startswith('#'):
+			return True
+	else:
+		return False
+
 def parse_text(text):
 	data = {}
 	if text[0] == '@':
@@ -108,15 +115,24 @@ def parse_text(text):
 	else:
 		action = 'set'
 		words = text.split()
+
+		if ' -' in text:
+			data['location'] = text[:text.index(' -')]
+		elif '#' in text:
+			data['location'] = text[:text.index(' #')]
+		else:
+			data['location'] = text
+
 		if '-default' in words:
 			data['default'] = True
+		
 		if '-channels' in words:
 			channels = ' '.join(words[words.index('-channels') + 1:])
 			data['channels'] = channels.replace(',', '').split()
-		if ' -' in text:
-			data['location'] = text[:text.index(' -')]
-		else:
-			data['location'] = text
+		elif haschannels(words):
+			data['channels'] = [word for word in words if word.startswith('#')]
+		
+
 
 	return data, action
 
