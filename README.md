@@ -1,4 +1,4 @@
-#workingfrom Slack command
+# workingfrom Slack command
 
 **We all know the feeling.**
 
@@ -32,13 +32,13 @@ You can also indicate where you're typically working from with the `--default` o
 	
 This way, people can tell where you're likely to be, even if you haven't used /workingfrom recently.
 
-###Using with Slack
+### Using with Slack
 The easiest way to deploy this code is to run it as a [Heroku app](https://devcenter.heroku.com/articles/getting-started-with-python-o). Then, create a Slack command for your team and hook it up.
 
 Clone this repository. Then change settings.py to use the token you got from Slack, set DEBUG to `False`, change the database file to whatever you want, and the webhook URL for the bot. Make sure to create the database and commit it also. Then deploy to Heroku.
 
 
-###License
+### License
 The MIT License (MIT)
 
 Copyright (c) 2015 Mat Leonard
